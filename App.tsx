@@ -1,20 +1,36 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import Navigation from "./src/navigation/Navigation";
+import { NativeBaseProvider } from "native-base";
+import { useState, useEffect } from "react";
+import { IUser, IUsers } from "./src/models/types";
+import { getValueFromAS } from "./src/utils/getValueFromAS";
+import { MainContext } from "./src/context";
+import axios from "axios";
 
 export default function App() {
+  const [user, setUser] = useState<IUser>();
+  const [users, setUsers] = useState<IUsers[]>();
+
+  useEffect(() => {
+    axios.get("https://jsonplaceholder.typicode.com/users").then((response) => {
+      setUsers(response.data);
+    });
+    
+  }, []);
+
+  useEffect(() => {
+    const asyncGet = async () => {
+      const userValue = await getValueFromAS("user");
+      setUser(userValue);
+    };
+    asyncGet();
+  }, []);
+
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <MainContext.Provider value={{ user, setUser, users, setUsers }}>
+      <NativeBaseProvider>
+        <Navigation />
+      </NativeBaseProvider>
+    </MainContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
