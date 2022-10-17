@@ -1,33 +1,30 @@
 import Navigation from "./src/navigation/Navigation";
 import { NativeBaseProvider } from "native-base";
 import { useState, useEffect } from "react";
-import { IUser, IUsers } from "./src/models/types";
+import { IUsers } from "./src/models/types";
 import { getValueFromAS } from "./src/utils/getValueFromAS";
 import { MainContext } from "./src/context";
 import axios from "axios";
 
 export default function App() {
-  const [user, setUser] = useState<IUser>();
   const [users, setUsers] = useState<IUsers[]>();
+  const [auth, setAuth] = useState<boolean>(false);
 
   useEffect(() => {
     axios.get("https://jsonplaceholder.typicode.com/users").then((response) => {
       setUsers(response.data);
     });
-    
   }, []);
 
   useEffect(() => {
     const asyncGet = async () => {
-      const userValue = await getValueFromAS("user");
-      setUser(userValue);
+      setAuth(await getValueFromAS("auth"));
     };
     asyncGet();
   }, []);
 
-
   return (
-    <MainContext.Provider value={{ user, setUser, users, setUsers }}>
+    <MainContext.Provider value={{ users, setUsers, auth, setAuth }}>
       <NativeBaseProvider>
         <Navigation />
       </NativeBaseProvider>
